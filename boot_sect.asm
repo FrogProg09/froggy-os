@@ -1,24 +1,18 @@
+[org 0x7c00]
 mov ah, 0x0e ; tty mode
-mov al, 'F'
+
+mov al, "2"
 int 0x10
-mov al, 'r'
-int 0x10
-mov al, 'o'
-int 0x10
-mov al, 'g'
-int 0x10 
-int 0x10
-mov al, 'y'
-int 0x10
-mov al, ' '
-int 0x10
-mov al, 'O'
-int 0x10
-mov al, 'S'
+mov al, [the_secret]
 int 0x10
 
-jmp $ ; jump to current address = infinite loop
+jmp $ ; infinite loop
 
-; padding and magic number
-times 510 - ($-$$) db 0
-dw 0xaa55 
+the_secret:
+    ; ASCII code 0x58 ('X') is stored just before the zero-padding.
+    ; On this code that is at byte 0x2d (check it out using 'xxd file.bin')
+    db "X"
+
+; zero padding and magic bios number
+times 510-($-$$) db 0
+dw 0xaa55
