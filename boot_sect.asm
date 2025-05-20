@@ -31,9 +31,9 @@
     jmp $
 
 ; remember to include subroutines below the hang
-%include "boot_sect_print.asm"
-%include "boot_sect_print_hex.asm"
-%include "boot_sect_disk.asm"
+%include "headers/boot_sect_print.asm"
+%include "headers/boot_sect_print_hex.asm"
+%include "headers/boot_sect_disk.asm"
 
 ; data
 HELLO: db 'Greetings, it is Froggy OS', 0
