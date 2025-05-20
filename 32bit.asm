@@ -1,26 +1,27 @@
-[bits 32] ; using 32-bit protected mode
+[org 0x7c00] ; bootloader offset
+    mov bp, 0x9000 ; set the stack
+    mov sp, bp
 
-; this is how constants are defined
-VIDEO_MEMORY equ 0xb8000
-WHITE_ON_BLACK equ 0x0f ; the color byte for each character
+    mov bx, MSG_REAL_MODE
+    call print ; This will be written after the BIOS messages
 
-print_string_pm:
-    pusha
-    mov edx, VIDEO_MEMORY
+    call switch_to_pm
+    jmp $ ; this will actually never be executed
 
-print_string_pm_loop:
-    mov al, [ebx] ; [ebx] is the address of our character
-    mov ah, WHITE_ON_BLACK
+%include "headers/boot_sect_print.asm"
+%include "headers/32bit_gdt.asm"
+%include "headers/32bit-print.asm"
+%include "headers/32bit-switch.asm"
 
-    cmp al, 0 ; check if end of string
-    je print_string_pm_done
+[bits 32]
+BEGIN_PM: ; after the switch we will get here
+    mov ebx, MSG_PROT_MODE
+    call print_string_pm ; Note that this will be written at the top left corner
+    jmp $
 
-    mov [edx], ax ; store character + attribute in video memory
-    add ebx, 1 ; next char
-    add edx, 2 ; next video memory position
+MSG_REAL_MODE db "Started in 16-bit real mode", 0
+MSG_PROT_MODE db "Loaded 32-bit protected mode", 0
 
-    jmp print_string_pm_loop
-
-print_string_pm_done:
-    popa
-    ret
+; bootsector
+times 510-($-$$) db 0
+dw 0xaa55
