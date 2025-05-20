@@ -1,30 +1,33 @@
-mov ah, 0x0e ; tty mode
+[org 0x7c00] ; tell the assembler that our offset is bootsector code
 
-mov bp, 0x8000
-mov sp, bp
+; The main routine makes sure the parameters are ready and then calls the function
+mov bx, HELLO
+call print
 
-push 'A'
-push 'B'
-push 'C'
+call print_nl
 
-; to show how the stack grows downwards
-; mov al, [0x7ffe] ; 0x8000 - 2
-; int 0x10
+mov bx, GOODBYE
+call print
 
-pop bx
-mov al, bl
-int 0x10 ; prints C
+call print_nl
 
-pop bx
-mov al, bl
-int 0x10 ; prints B
+mov dx, 0x12fe
+call print_hex
 
-pop bx
-mov al, bl
-int 0x10 ; prints A
-
+; that's it! we can hang now
 jmp $
 
-; zero padding and magic bios number
+; remember to include subroutines below the hang
+%include "boot_sect_print.asm"
+%include "boot_sect_print_hex.asm"
+
+; data
+HELLO:
+    db 'Greetings, it is Froggy OS!', 0
+
+GOODBYE:
+    db 'Goodbye, come back soon!', 0
+
+; padding and magic number
 times 510-($-$$) db 0
 dw 0xaa55
